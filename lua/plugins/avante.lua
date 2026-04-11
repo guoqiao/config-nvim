@@ -2,19 +2,49 @@ return {
   {
     "yetone/avante.nvim",
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-    -- ⚠️ must add this setting! ! !
+    -- must add this setting!
     build = "make",
     event = "VeryLazy",
     version = false, -- Never set this value to "*"! Never!
     ---@module 'avante'
     ---@type avante.Config
     opts = {
-      -- add any opts here
-      -- for example
-      provider = "deepseek",
+      -- Main provider used in Aider mode or planning phase
+      provider = "openai",
+
+      -- Interaction mode: "agentic" (tool-assisted code generation) or "legacy" (old planning method)
+      mode = "agentic",
+
+      -- Provider used for auto-suggestions (high-frequency, expensive)
+      auto_suggestions_provider = "openai",
+
+      -- this file can contain specific instructions for your project
+      instructions_file = "avante.md",
+
+      -- Input provider settings
+      input = {
+        provider = "snacks", -- "native" | "dressing" | "snacks"
+        provider_opts = {
+          -- Snacks input configuration
+          title = "Avante Input",
+          icon = " ",
+          placeholder = "Enter your prompt...",
+        },
+      },
+
+      -- Dual boost mode: combine two providers' outputs
+      dual_boost = {
+        enabled = false,
+        first_provider = "openai",
+        second_provider = "claude",
+        prompt = "",
+        timeout = 60000, -- in milliseconds
+      },
+
       providers = {
         claude = {
           endpoint = "https://api.anthropic.com",
+          auth_type = "api",
           model = "claude-sonnet-4-20250514",
           timeout = 30000, -- Timeout in milliseconds
           extra_request_body = {
@@ -27,6 +57,13 @@ return {
           api_key_name = "DEEPSEEK_API_KEY",
           endpoint = "https://api.deepseek.com",
           model = "deepseek-coder",
+        },
+        openai = {
+          __inherited_from = "openai",
+          api_key_name = "OPENAI_API_KEY",
+          endpoint = "http://192.168.20.55:8317/v1",
+          model = "step-3.5-flash",
+          timeout = 60000,
         },
         openrouter = {
           __inherited_from = "openai",
@@ -48,8 +85,8 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
-      --- The below dependencies are optional,
-      "echasnovski/mini.pick", -- for file_selector provider mini.pick
+      -- The below dependencies are optional,
+      "nvim-mini/mini.pick", -- for file_selector provider mini.pick
       "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
       "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
       "ibhagwan/fzf-lua", -- for file_selector provider fzf
